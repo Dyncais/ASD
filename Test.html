@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Опросник</title>
+    <style>
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .question-image {
+            /* Тут ты можешь настроить стили для фото с вопросом */
+            width: 80%; /* Пример ширины */
+            border: 1px solid #000; /* Черная рамка */
+            margin-bottom: 20px; /* Отступ снизу */
+        }
+        .answers {
+            /* Стили для блока ответов */
+            margin-bottom: 20px; /* Отступ снизу */
+        }
+        .answer {
+            /* Стили для каждого ответа */
+            margin: 5px 0; /* Отступы */
+        }
+        .button-next {
+            /* Стили для кнопки "далее" */
+            padding: 10px 20px; /* Паддинги */
+            border: none;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="start-screen" class="container">
+    <input type="text" id="username" placeholder="Введите ваше имя" />
+    <button id="check-captcha" onclick="showCaptcha()">Я не робот</button>
+    <p id="captcha-instruction" style="display:none;">Нажмите на фото бота:</p>
+    <img id="captcha-image" src="https://i.postimg.cc/g2Rtd5Mt/2369236.jpg" alt="Капча" onclick="verifyCaptcha()" style="display:none; cursor: pointer;" />
+</div>
+
+
+
+
+<div class="container">
+    <div id="question-container" class="question-image">
+        <!-- Сюда будет вставляться вопрос и варианты ответов через JavaScript -->
+    </div>
+    <button class="button-next" onclick="nextQuestion()">Далее</button>
+</div>
+
+<div data-translate="question1">Вопрос 1</div>
+<div data-translate="answer1">Ответ 1</div>
+
+<div class="language-switcher">
+    <button onclick="changeLanguage('en')">EN</button>
+    <button onclick="changeLanguage('ru')">RU</button>
+</div>
+
+
+
+<script>
+
+    var userAnswers = [];
+    var currentQuestion = 0;
+    var correctAnswers = 0; // Счётчик правильных ответов
+
+    var translations = {
+        'ru': {
+            'question0': 'Вопрос 1',
+            'answer0': ['Ответ 1', 'Ответ 2'],
+            'image0': 'ссылка/на/изображение/на/русском.jpg',
+            'question1': 'Вопрос 2',
+            'answer1': ['Ответ 3', 'Ответ 4'],
+            'image1': 'ссылка/на/второе/изображение/на/русском.jpg',
+            // ... другие переводы
+        },
+        'en': {
+            'question0': 'Question 1',
+            'answer0': ['Answer 1', 'Answer 2'],
+            'image0': 'link/to/image/in/english.jpg',
+            'question1': 'Question 2',
+            'answer1': ['Answer 3', 'Answer 4'],
+            'image1': 'link/to/second/image/in/english.jpg',
+            // ... другие переводы
+        }
+    };
+
+    // В функции showQuestion и changeLanguage обновите ссылки и текст согласно выбранному языку.
+
+    function showCaptcha() {
+        // Показываем изображение капчи
+        document.getElementById('captcha-instruction').style.display = 'block';
+        document.getElementById('captcha-image').style.display = 'block';
+    }
+
+    function verifyCaptcha() {
+
+
+        // Пользователь кликает на изображение для подтверждения
+        var username = document.getElementById('username').value;
+        if(username.trim() === "") {
+            alert("Пожалуйста, введите ваше имя.");
+            return;
+        }
+        alert("Проверка пройдена, " + username + "!");
+        document.getElementById('start-screen').style.display = 'none';
+        // Здесь может идти переход к отображению вопросов
+    }
+    function changeLanguage(lang) {
+        // Обновляем текст вопроса
+        questions[currentQuestion].text = translations[lang]['question' + currentQuestion];
+        // Обновляем ответы
+        questions[currentQuestion].answers.forEach(function(answer, index) {
+            questions[currentQuestion].answers[index] = translations[lang]['answer' + currentQuestion][index];
+        });
+        // Обновляем изображение
+        questions[currentQuestion].image = '<img src="' + translations[lang]['image' + currentQuestion] + '" alt="Вопрос ' + (currentQuestion + 1) + '">';
+
+        // Перерисовываем вопрос с новым языком
+        showQuestion();
+    }
+
+
+    var questions = [
+        { text: "Вопрос 1",   image: "<img src='https://i.postimg.cc/ZR7HFgkz/hqdefault.jpg' alt='Вопрос 1'>", answers: ["Ответ 1", "Ответ 2"], correct: 0  },
+        { text: "Вопрос 2", answers: ["Ответ 3", "Ответ 4"], correct: 0  }
+        // Добавь сюда остальные вопросы
+    ];
+    function startQuiz() {
+        var username = document.getElementById('username').value;
+        if(username.trim() !== "") {
+            // Сохраняем имя пользователя, если нужно
+            console.log("Привет, " + username + "!"); // Или используйте имя пользователя по-другому
+            // Скрываем начальный экран и показываем первый вопрос
+            document.getElementById('start-screen').style.display = 'none';
+            showQuestion();
+        } else {
+            alert("Пожалуйста, введите ваше имя.");
+        }
+    }
+    function showQuestion() {
+        var question = questions[currentQuestion];
+        var html = '<div class="question">' + question.text + '</div>';
+        html += question.image; // Добавить изображение
+        for (var i = 0; i < question.answers.length; i++) {
+            html += '<div class="answer"><input type="radio" name="answer" id="answer' + i + '"><label for="answer' + i + '">' + question.answers[i] + '</label></div>';
+        }
+        document.getElementById('question-container').innerHTML = html;
+    }
+
+
+    function checkAnswer() {
+        var selectedAnswer = document.querySelector('input[name="answer"]:checked');
+        if (selectedAnswer) {
+            userAnswers.push({ // Запомнить выбранный ответ и его корректность
+                question: questions[currentQuestion].text,
+                answer: selectedAnswer.nextElementSibling.textContent,
+                isCorrect: questions[currentQuestion].answers.indexOf(selectedAnswer.nextElementSibling.textContent) === questions[currentQuestion].correct
+            });
+        }
+    }
+
+    function showResults() {
+        var html = '<div class="question">Тест завершён! Правильных ответов: ' + correctAnswers + ' из ' + questions.length + '.</div>';
+        userAnswers.forEach(function(ua) {
+            html += '<div class="question">' + ua.question + '</div>';
+            html += '<div class="answer" style="color:' + (ua.isCorrect ? 'green' : 'red') + ';">' + ua.answer + '</div>';
+        });
+        document.getElementById('question-container').innerHTML = html;
+    }
+
+    function nextQuestion() {
+        checkAnswer();
+
+        currentQuestion++;
+        if (currentQuestion >= questions.length) {
+            showResults(); // Показать результаты
+            document.querySelector('.button-next').style.display = 'none';
+            return;
+        }
+        showQuestion();
+    }
+
+
+    // Показать первый вопрос при загрузке страницы
+    window.onload = showQuestion;
+</script>
+</body>
+</html>
